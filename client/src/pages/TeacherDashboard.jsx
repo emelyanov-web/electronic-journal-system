@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import JournalList from "../components/JournalList";
 import Modal from "../components/Modal";
@@ -11,8 +11,35 @@ export default function TeacherDashboard({ journals, setJournals }) {
   const [editingJournal, setEditingJournal] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  function saveJournal(journalData) {
-    setJournals([...journals, journalData]);
+  useEffect(() => {
+    fetch("http://localhost:5000/journals")
+      .then((res) => res.json())
+      .then((data) => {
+        setJournals(data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
+  async function saveJournal(journalData) {
+    try {
+      const response = await fetch("http://localhost:5000/journals", {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(journalData),
+      });
+
+      const newJournal = await response.json();
+
+      setJournals([...journals, newJournal]);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function deleteJournal(id) {

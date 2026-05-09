@@ -35,6 +35,48 @@ app.get("/journals", async (req, res) => {
   }
 });
 
+app.post("/journals", async (req, res) => {
+  try {
+    const { group, subject, students, lessons } = req.body;
+
+    const journal = await prisma.journal.create({
+      data: {
+        group,
+        subject,
+
+        teacherId: 1,
+
+        students: {
+          create: students.map((student) => ({
+            name: student.name,
+          })),
+        },
+
+        lessons: {
+          create: lessons.map((lesson) => ({
+            date: new Date(lesson.date),
+
+            type: lesson.type,
+          })),
+        },
+      },
+
+      include: {
+        students: true,
+        lessons: true,
+      },
+    });
+
+    res.status(201).json(journal);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Ошибка создания журнала",
+    });
+  }
+});
+
 const PORT = 5000;
 
 app.listen(PORT, () => {
