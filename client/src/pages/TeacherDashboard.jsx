@@ -5,7 +5,11 @@ import Modal from "../components/Modal";
 import CreateJournalForm from "../components/CreateJournalForm";
 import JournalViewer from "../components/JournalViewer";
 
-export default function TeacherDashboard({ journals, setJournals }) {
+export default function TeacherDashboard({
+  journals,
+  setJournals,
+  setCurrentUser,
+}) {
   const [activePage, setActivePage] = useState("journals");
   const [selectedJournal, setSelectedJournal] = useState(null);
   const [editingJournal, setEditingJournal] = useState(null);
@@ -127,7 +131,11 @@ export default function TeacherDashboard({ journals, setJournals }) {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} />
+      <Sidebar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        setCurrentUser={setCurrentUser}
+      />
 
       <div className="flex-1 p-10 min-w-0 overflow-hidden">
         {activePage === "journals" && (

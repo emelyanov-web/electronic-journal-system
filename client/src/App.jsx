@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
 
-import StudentDashboard from "./pages/StudentDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
+import LoginPage from "./pages/LoginPage";
 
 export default function App() {
-  const role = "teacher";
-
   const [journals, setJournals] = useState([]);
+
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
   useEffect(() => {
     fetch("http://localhost:5000/journals")
@@ -19,12 +24,25 @@ export default function App() {
       });
   }, []);
 
+  if (!currentUser) {
+    return <LoginPage setCurrentUser={setCurrentUser} />;
+  }
+
   return (
     <>
-      {role === "student" && <StudentDashboard journals={journals} />}
-
-      {role === "teacher" && (
-        <TeacherDashboard journals={journals} setJournals={setJournals} />
+      {currentUser.role === "TEACHER" ? (
+        <TeacherDashboard
+          journals={journals}
+          setJournals={setJournals}
+          currentUser={currentUser}
+          setCurrentUser={setCurrentUser}
+        />
+      ) : (
+        <StudentDashboard
+          journals={journals}
+          currentUser={currentUser}
+          setCurrentUser={setCurrentUser}
+        />
       )}
     </>
   );

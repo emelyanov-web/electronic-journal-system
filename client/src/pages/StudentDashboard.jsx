@@ -1,6 +1,6 @@
 import JournalViewer from "../components/JournalViewer";
 
-function StudentDashboard({ journals }) {
+function StudentDashboard({ journals, currentUser, setCurrentUser }) {
   const currentStudentName = "Емельянов Д. Ю.";
 
   const studentJournal = journals.find((journal) =>
@@ -63,20 +63,17 @@ function StudentDashboard({ journals }) {
             <span>📚</span>
             Главная
           </button>
-
-          <button className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition">
-            <span>👤</span>
-            Профиль
-          </button>
-
-          <button className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-100 transition">
-            <span>📈</span>
-            Успеваемость
-          </button>
         </nav>
 
         <div className="mt-auto">
-          <button className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition">
+          <button
+            onClick={() => {
+              localStorage.removeItem("user");
+
+              setCurrentUser(null);
+            }}
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl transition"
+          >
             Выйти
           </button>
         </div>
@@ -115,48 +112,6 @@ function StudentDashboard({ journals }) {
             <p className="text-gray-500 mb-2">Средний балл</p>
 
             <h2 className="text-4xl font-bold text-gray-800">{averageGrade}</h2>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            <p className="text-gray-500 mb-2">Пропуски</p>
-
-            <h2 className="text-4xl font-bold text-red-500">2</h2>
-          </div>
-        </div>
-
-        {/* Attendance */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">Посещаемость</h2>
-
-              <p className="text-gray-500">История посещений занятий</p>
-            </div>
-
-            <button className="bg-[#7c3aed] hover:bg-[#6d28d9] text-white px-5 py-2 rounded-xl transition">
-              Скачать
-            </button>
-          </div>
-
-          <div className="grid grid-cols-4 lg:grid-cols-8 gap-4">
-            {lessons.map((lesson, index) => (
-              <div
-                key={index}
-                className="bg-[#f8fafc] rounded-2xl p-4 border border-gray-100 hover:shadow-md transition"
-              >
-                <div className="text-sm text-gray-500 mb-2">{lesson.type}</div>
-
-                <div className="font-bold text-lg text-gray-800">
-                  {lesson.date}
-                </div>
-
-                <div className="mt-4 flex justify-center">
-                  <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-lg font-semibold">
-                    {lesson.value}
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 

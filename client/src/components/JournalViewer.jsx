@@ -97,7 +97,7 @@ export default function JournalViewer({
                       className="sticky top-0 z-30 bg-gray-50 border-b border-r border-gray-200 px-4 py-4 text-center w-[120px] min-w-[120px]"
                     >
                       <div className="font-semibold text-sm whitespace-nowrap">
-                        {lesson.date}
+                        {new Date(lesson.date).toLocaleDateString("ru-RU")}
                       </div>
 
                       <div className="text-xs text-gray-400 mt-1 whitespace-nowrap">

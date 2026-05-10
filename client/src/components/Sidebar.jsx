@@ -1,4 +1,4 @@
-export default function Sidebar({ activePage, setActivePage }) {
+export default function Sidebar({ activePage, setActivePage, setCurrentUser }) {
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col justify-between p-6">
       <div>
@@ -33,7 +33,14 @@ export default function Sidebar({ activePage, setActivePage }) {
         </div>
       </div>
 
-      <button className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl transition-all">
+      <button
+        onClick={() => {
+          localStorage.removeItem("user");
+
+          setCurrentUser(null);
+        }}
+        className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl transition-all"
+      >
         Выйти
       </button>
     </div>
