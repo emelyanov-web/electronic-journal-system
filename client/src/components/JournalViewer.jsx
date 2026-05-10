@@ -7,6 +7,7 @@ export default function JournalViewer({
   selectedJournal,
   setSelectedJournal,
   updateAttendance,
+  editable = true,
 }) {
   const [editableAttendance, setEditableAttendance] = useState({});
   const [activeCell, setActiveCell] = useState(null);
@@ -127,40 +128,60 @@ export default function JournalViewer({
                         className="border-b border-r border-gray-200 px-4 py-4 text-center w-[120px] min-w-[120px]"
                       >
                         <div className="relative flex justify-center">
-                          <button
-                            onClick={() => {
-                              const key = `${student.id}-${lesson.id}`;
+                          {editable ? (
+                            <button
+                              onClick={() => {
+                                const key = `${student.id}-${lesson.id}`;
 
-                              setActiveCell(activeCell === key ? null : key);
-                            }}
-                            className={`w-10 h-10 rounded-xl hover:bg-violet-100 transition-all text-sm font-semibold ${getValueColor(editableAttendance[`${student.id}-${lesson.id}`] || "—")}`}
-                          >
-                            {editableAttendance[`${student.id}-${lesson.id}`] ||
-                              "—"}
-                          </button>
-
-                          {activeCell === `${student.id}-${lesson.id}` && (
-                            <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl px-2 py-2 flex gap-1">
-                              {values.map((value) => (
-                                <button
-                                  key={value}
-                                  onClick={() => {
-                                    const key = `${student.id}-${lesson.id}`;
-
-                                    setEditableAttendance({
-                                      ...editableAttendance,
-                                      [key]: value,
-                                    });
-
-                                    setActiveCell(null);
-                                  }}
-                                  className="min-w-[38px] h-9 rounded-lg hover:bg-violet-100 transition-all text-sm font-semibold"
-                                >
-                                  {value}
-                                </button>
-                              ))}
+                                setActiveCell(activeCell === key ? null : key);
+                              }}
+                              className={`w-10 h-10 rounded-xl hover:bg-violet-100 transition-all text-sm font-semibold ${getValueColor(
+                                editableAttendance[
+                                  `${student.id}-${lesson.id}`
+                                ] || "—",
+                              )}`}
+                            >
+                              {editableAttendance[
+                                `${student.id}-${lesson.id}`
+                              ] || "—"}
+                            </button>
+                          ) : (
+                            <div
+                              className={`w-10 h-10 flex items-center justify-center text-sm font-semibold ${getValueColor(
+                                editableAttendance[
+                                  `${student.id}-${lesson.id}`
+                                ] || "—",
+                              )}`}
+                            >
+                              {editableAttendance[
+                                `${student.id}-${lesson.id}`
+                              ] || "—"}
                             </div>
                           )}
+
+                          {editable &&
+                            activeCell === `${student.id}-${lesson.id}` && (
+                              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl px-2 py-2 flex gap-1">
+                                {values.map((value) => (
+                                  <button
+                                    key={value}
+                                    onClick={() => {
+                                      const key = `${student.id}-${lesson.id}`;
+
+                                      setEditableAttendance({
+                                        ...editableAttendance,
+                                        [key]: value,
+                                      });
+
+                                      setActiveCell(null);
+                                    }}
+                                    className="min-w-[38px] h-9 rounded-lg hover:bg-violet-100 transition-all text-sm font-semibold"
+                                  >
+                                    {value}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                         </div>
                       </td>
                     ))}
@@ -169,30 +190,32 @@ export default function JournalViewer({
               </tbody>
             </table>
           </div>
-          {hasChanges && (
+          {editable && hasChanges && (
             <div className="mt-5 text-sm text-amber-600 font-medium">
               Есть несохранённые изменения
             </div>
           )}
-          <div className="flex justify-end gap-3 mt-5">
-            <button
-              onClick={() => {
-                setEditableAttendance(selectedJournal.attendance || {});
-              }}
-              className="px-5 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition-all"
-            >
-              Отменить
-            </button>
+          {editable && (
+            <div className="flex justify-end gap-3 mt-5">
+              <button
+                onClick={() => {
+                  setEditableAttendance(selectedJournal.attendance || {});
+                }}
+                className="px-5 py-3 rounded-xl border border-gray-300 hover:bg-gray-100 transition-all"
+              >
+                Отменить
+              </button>
 
-            <button
-              onClick={() => {
-                updateAttendance(selectedJournal.id, editableAttendance);
-              }}
-              className="bg-violet-600 text-white px-5 py-3 rounded-xl hover:bg-violet-700 transition-all"
-            >
-              Сохранить
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  updateAttendance(selectedJournal.id, editableAttendance);
+                }}
+                className="bg-violet-600 text-white px-5 py-3 rounded-xl hover:bg-violet-700 transition-all"
+              >
+                Сохранить
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

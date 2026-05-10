@@ -42,16 +42,47 @@ export default function TeacherDashboard({ journals, setJournals }) {
     }
   }
 
-  function deleteJournal(id) {
-    setJournals(journals.filter((journal) => journal.id !== id));
+  async function deleteJournal(id) {
+    try {
+      await fetch(`http://localhost:5000/journals/${id}`, {
+        method: "DELETE",
+      });
+
+      setJournals(journals.filter((journal) => journal.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  function updateJournal(updatedJournal) {
-    setJournals(
-      journals.map((journal) =>
-        journal.id === updatedJournal.id ? updatedJournal : journal,
-      ),
-    );
+  async function updateJournal(updatedJournal) {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/journals/${updatedJournal.id}`,
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify(updatedJournal),
+        },
+      );
+
+      const savedJournal = await response.json();
+
+      setJournals(
+        journals.map((journal) =>
+          journal.id === savedJournal.id ? savedJournal : journal,
+        ),
+      );
+
+      setEditingJournal(null);
+
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async function updateAttendance(journalId, attendance) {

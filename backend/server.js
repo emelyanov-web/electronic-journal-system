@@ -161,6 +161,122 @@ app.patch(
   },
 );
 
+app.delete(
+  "/journals/:id",
+
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      await prisma.attendance.deleteMany({
+        where: {
+          lesson: {
+            journalId: Number(id),
+          },
+        },
+      });
+
+      await prisma.lesson.deleteMany({
+        where: {
+          journalId: Number(id),
+        },
+      });
+
+      await prisma.student.deleteMany({
+        where: {
+          journalId: Number(id),
+        },
+      });
+
+      await prisma.journal.delete({
+        where: {
+          id: Number(id),
+        },
+      });
+
+      res.json({
+        message: "Journal deleted",
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Ошибка удаления журнала",
+      });
+    }
+  },
+);
+
+app.put(
+  "/journals/:id",
+
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const { group, subject, students, lessons } = req.body;
+
+      await prisma.attendance.deleteMany({
+        where: {
+          lesson: {
+            journalId: Number(id),
+          },
+        },
+      });
+
+      await prisma.lesson.deleteMany({
+        where: {
+          journalId: Number(id),
+        },
+      });
+
+      await prisma.student.deleteMany({
+        where: {
+          journalId: Number(id),
+        },
+      });
+
+      const updatedJournal = await prisma.journal.update({
+        where: {
+          id: Number(id),
+        },
+
+        data: {
+          group,
+          subject,
+
+          students: {
+            create: students.map((student) => ({
+              name: student.name,
+            })),
+          },
+
+          lessons: {
+            create: lessons.map((lesson) => ({
+              date: new Date(lesson.date),
+
+              type: lesson.type,
+            })),
+          },
+        },
+
+        include: {
+          students: true,
+          lessons: true,
+        },
+      });
+
+      res.json(updatedJournal);
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Ошибка обновления журнала",
+      });
+    }
+  },
+);
+
 const PORT = 5000;
 
 app.listen(PORT, () => {

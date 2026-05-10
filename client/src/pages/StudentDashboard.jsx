@@ -1,3 +1,5 @@
+import JournalViewer from "../components/JournalViewer";
+
 function StudentDashboard({ journals }) {
   const currentStudentName = "Емельянов Д. Ю.";
 
@@ -41,6 +43,10 @@ function StudentDashboard({ journals }) {
   const averageGrade = grades.length
     ? (grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1)
     : "—";
+
+  if (!studentJournal || !currentStudent) {
+    return <div className="p-10 text-xl">Загрузка журнала...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-[#f5f7fb] flex">
@@ -152,6 +158,15 @@ function StudentDashboard({ journals }) {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-8">
+          <JournalViewer
+            journals={[studentJournal]}
+            selectedJournal={studentJournal}
+            setSelectedJournal={() => {}}
+            editable={false}
+          />
         </div>
       </main>
     </div>
