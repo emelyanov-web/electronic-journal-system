@@ -54,24 +54,34 @@ export default function TeacherDashboard({ journals, setJournals }) {
     );
   }
 
-  function updateAttendance(journalId, newAttendance) {
-    setJournals(
-      journals.map((journal) => {
-        if (journal.id !== journalId) {
-          return journal;
-        }
+  async function updateAttendance(journalId, attendance) {
+    try {
+      await fetch(`http://localhost:5000/attendance/${journalId}`, {
+        method: "PATCH",
 
-        return {
-          ...journal,
-          attendance: newAttendance,
-        };
-      }),
-    );
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-    setSelectedJournal((prev) => ({
-      ...prev,
-      attendance: newAttendance,
-    }));
+        body: JSON.stringify({
+          attendance,
+        }),
+      });
+
+      const response = await fetch("http://localhost:5000/journals");
+
+      const updatedJournals = await response.json();
+
+      setJournals(updatedJournals);
+
+      const updatedSelectedJournal = updatedJournals.find(
+        (journal) => journal.id === journalId,
+      );
+
+      setSelectedJournal(updatedSelectedJournal);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   function openCreateModal() {

@@ -20,12 +20,33 @@ app.get("/journals", async (req, res) => {
   try {
     const journals = await prisma.journal.findMany({
       include: {
-        students: true,
+        students: {
+          include: {
+            attendances: true,
+          },
+        },
+
         lessons: true,
       },
     });
 
-    res.json(journals);
+    const formattedJournals = journals.map((journal) => {
+      const attendance = {};
+
+      journal.students.forEach((student) => {
+        student.attendances.forEach((attendanceItem) => {
+          attendance[`${attendanceItem.studentId}-${attendanceItem.lessonId}`] =
+            attendanceItem.value;
+        });
+      });
+
+      return {
+        ...journal,
+        attendance,
+      };
+    });
+
+    res.json(formattedJournals);
   } catch (error) {
     console.error(error);
 
@@ -62,7 +83,12 @@ app.post("/journals", async (req, res) => {
       },
 
       include: {
-        students: true,
+        students: {
+          include: {
+            attendances: true,
+          },
+        },
+
         lessons: true,
       },
     });
@@ -76,6 +102,64 @@ app.post("/journals", async (req, res) => {
     });
   }
 });
+
+app.patch(
+  "/attendance/:journalId",
+
+  async (req, res) => {
+    try {
+      const { journalId } = req.params;
+
+      const { attendance } = req.body;
+
+      for (const key in attendance) {
+        const [studentId, lessonId] = key.split("-");
+
+        const value = attendance[key];
+
+        const existingAttendance = await prisma.attendance.findFirst({
+          where: {
+            studentId: Number(studentId),
+
+            lessonId: Number(lessonId),
+          },
+        });
+
+        if (existingAttendance) {
+          await prisma.attendance.update({
+            where: {
+              id: existingAttendance.id,
+            },
+
+            data: {
+              value,
+            },
+          });
+        } else {
+          await prisma.attendance.create({
+            data: {
+              value,
+
+              studentId: Number(studentId),
+
+              lessonId: Number(lessonId),
+            },
+          });
+        }
+      }
+
+      res.json({
+        message: "Attendance updated",
+      });
+    } catch (error) {
+      console.error(error);
+
+      res.status(500).json({
+        error: "Ошибка обновления attendance",
+      });
+    }
+  },
+);
 
 const PORT = 5000;
 
