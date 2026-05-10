@@ -1,3 +1,4 @@
+const bcrypt = require("bcrypt");
 const express = require("express");
 const cors = require("cors");
 
@@ -52,6 +53,89 @@ app.get("/journals", async (req, res) => {
 
     res.status(500).json({
       error: "Ошибка получения журналов",
+    });
+  }
+});
+
+app.post("/register", async (req, res) => {
+  try {
+    const { name, login, password, role } = req.body;
+
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        login,
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        error: "Логин уже занят",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        login,
+        password: hashedPassword,
+        role,
+      },
+    });
+
+    res.status(201).json({
+      message: "Пользователь создан",
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Ошибка регистрации",
+    });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { login, password } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        login,
+      },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        error: "Пользователь не найден",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({
+        error: "Неверный пароль",
+      });
+    }
+
+    res.json({
+      message: "Успешный вход",
+
+      user: {
+        id: user.id,
+        name: user.name,
+        login: user.login,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Ошибка входа",
     });
   }
 });
